@@ -21,12 +21,14 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent
 sns.set_theme(style="whitegrid", font_scale=1.0)
-OUT = "/home/claude/proj/figuras"
-os.makedirs(OUT, exist_ok=True)
+OUT = BASE_DIR / "figuras"
+OUT.mkdir(exist_ok=True)
 
-df = pd.read_csv("/home/claude/proj/df_municipios.csv")
+df = pd.read_csv(BASE_DIR / "df_municipios.csv")
 
 # =================================================================
 # 1) Estatísticas descritivas gerais
@@ -35,7 +37,7 @@ desc_geral = df[[
     "pop_total_2022", "pop_0a4_2022", "prop_0a4_2022",
     "pop_2024", "pop_2026", "cresc_pop_total_2024_2026_pct"
 ]].describe().T
-desc_geral.to_csv("/home/claude/proj/estatisticas_descritivas_geral.csv")
+desc_geral.to_csv(BASE_DIR / "estatisticas_descritivas_geral.csv")
 print("=== Estatísticas descritivas gerais ===")
 print(desc_geral.round(3).to_string())
 
@@ -43,7 +45,7 @@ print(desc_geral.round(3).to_string())
 desc_regiao = df.groupby("regiao")[
     ["pop_total_2022", "prop_0a4_2022", "cresc_pop_total_2024_2026_pct"]
 ].agg(["mean", "median", "std", "count"])
-desc_regiao.to_csv("/home/claude/proj/estatisticas_por_regiao.csv")
+desc_regiao.to_csv(BASE_DIR / "estatisticas_por_regiao.csv")
 print("\n=== Estatísticas por região ===")
 print(desc_regiao.round(4).to_string())
 
@@ -140,7 +142,7 @@ labels_corr = [
 corr = df[cols_corr].corr()
 corr.index = labels_corr
 corr.columns = labels_corr
-corr.to_csv("/home/claude/proj/matriz_correlacao.csv")
+corr.to_csv(BASE_DIR / "matriz_correlacao.csv")
 
 fig, ax = plt.subplots(figsize=(7.5, 6.5))
 sns.heatmap(corr, annot=True, fmt=".2f", cmap="RdBu_r", vmin=-1, vmax=1,

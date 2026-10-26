@@ -15,14 +15,19 @@ as colunas usadas na análise exploratória (Sprint 1).
 import pandas as pd
 import numpy as np
 import re
+from pathlib import Path
 
-PASTA = "/mnt/user-data/uploads/"
+BASE_DIR = Path(__file__).resolve().parent
 
 # ---------------------------------------------------------------
 # 1) Tabela 6579 - População residente estimada (2024, 2025, 2026)
 # ---------------------------------------------------------------
+arquivo_est = BASE_DIR / "População residente estimada.csv"
+if not arquivo_est.exists():
+    arquivo_est = BASE_DIR / "População_residente_estimada.csv"
+
 raw = pd.read_csv(
-    PASTA + "População_residente_estimada.csv",
+    arquivo_est,
     sep=";",
     encoding="utf-8-sig",
     skiprows=4,          # pula as 4 linhas de cabeçalho/metadados do SIDRA
@@ -54,8 +59,12 @@ print(f"Tabela 6579 (estimativas): {len(est)} municípios válidos")
 # ---------------------------------------------------------------
 # 2) Tabela 9514 - Censo 2022: população total e 0-4 anos
 # ---------------------------------------------------------------
+arquivo_censo = BASE_DIR / "População residente, por sexo, idade e forma de declaração da idade.csv"
+if not arquivo_censo.exists():
+    arquivo_censo = BASE_DIR / "População_residente__por_sexo__idade_e_forma_de_declaração_da_idade.csv"
+
 raw2 = pd.read_csv(
-    PASTA + "População_residente__por_sexo__idade_e_forma_de_declaração_da_idade.csv",
+    arquivo_censo,
     sep=";",
     encoding="utf-8-sig",
     skiprows=6,          # pula as 6 linhas de cabeçalho/metadados do SIDRA
@@ -129,7 +138,7 @@ cols_finais = [
     "pop_0a4_est_2024", "pop_0a4_est_2026", "cresc_pop_0a4_est_2024_2026_pct",
 ]
 df = df[cols_finais].sort_values("pop_2026", ascending=False).reset_index(drop=True)
-df.to_csv("/home/claude/proj/df_municipios.csv", index=False)
+df.to_csv(BASE_DIR / "df_municipios.csv", index=False)
 
 print("\nAmostra da base final:")
 print(df.head(10).to_string(index=False))
