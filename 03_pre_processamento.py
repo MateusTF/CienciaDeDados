@@ -2,18 +2,23 @@
 """
 03_pre_processamento.py
 
-Pré-processamento da base de municípios (Sprint 2 - Filtro e Criação da
-Variável-Alvo):
+Pré-processamento da base de municípios (revisado na Sprint 3):
 
   1. Carrega df_municipios.csv (base principal) e regioes_metropolitanas.csv
      (base de filtro, na raiz do projeto).
   2. Inner merge pela coluna cod_municipio: mantém só municípios de RMs.
   3. Calcula a variável-alvo cresc_pop_0a4_pct (crescimento % da população
      de 0 a 4 anos).
-  4. Remove colunas que causam vazamento de dados (drop).
-  5. Aplica log10 em pop_total_2022.
-  6. Isola a variável-alvo e padroniza (StandardScaler) as features numéricas.
-  7. Trata nulos e exporta df_pre_processado.csv.
+  4. Cria a feature cresc_pop_2022_2024_pct (crescimento observado antes do
+     período do alvo).
+  5. Remove colunas que causam vazamento de dados ou são redundantes (drop).
+  6. Aplica log10 em pop_total_2022.
+  7. Trata nulos e exporta df_pre_processado.csv SEM padronização.
+
+A normalização das features NÃO é feita aqui: ela passou para dentro do
+Pipeline de modelagem (04_algoritmos_individuais.py), onde o scaler é
+ajustado apenas nos dados de treino de cada fold e o tipo de scaler
+(StandardScaler, MinMaxScaler, RobustScaler) é avaliado como hiperparâmetro.
 
 Colunas usadas de regioes_metropolitanas.csv: cod_municipio e
 regiao_metropolitana (as demais são ignoradas). Municípios que aparecem em
@@ -29,7 +34,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -42,12 +46,22 @@ ALVO = "cresc_pop_0a4_pct"
 # Colunas que reproduzem o alvo (ou o seu numerador/denominador estimado) e
 # não podem ser preditoras. cresc_pop_total_2024_2026_pct é igual ao alvo
 # porque pop_0a4_est_* = prop_0a4_2022 * pop_* (ver 01_carregar_dados.py).
+# pop_2025 e pop_2026 também são removidas: o alvo é calculado diretamente a
+# partir de pop_2026 / pop_2024, então mantê-las permitiria ao modelo
+# "recalcular" o alvo em vez de prevê-lo. Só entram como features
+# informações disponíveis até 2024 (início do horizonte de previsão).
 COLUNAS_VAZAMENTO = [
     "cresc_pop_total_2024_2026_pct",
     "cresc_pop_0a4_est_2024_2026_pct",
     "pop_0a4_est_2024",
     "pop_0a4_est_2026",
+    "pop_2025",
+    "pop_2026",
 ]
+
+# Colunas redundantes: pop_0a4_2022 tem correlação 0,996 com pop_total_2022 e
+# pop_2024 é usada apenas para construir cresc_pop_2022_2024_pct.
+COLUNAS_REDUNDANTES = ["pop_0a4_2022", "pop_2024"]
 
 # Colunas de identificação: ficam no arquivo final, mas não são padronizadas.
 COLUNAS_ID = ["cod_municipio", "municipio", "uf", "regiao", "regiao_metropolitana"]
@@ -105,19 +119,25 @@ if df.empty:
 df[ALVO] = (df["pop_0a4_est_2026"] / df["pop_0a4_est_2024"] - 1) * 100
 
 # ---------------------------------------------------------------
-# 4) Remove colunas que vazam o alvo (drop)
+# 4) Feature de tendência recente: crescimento % da população 2022 -> 2024
+#    (período anterior ao do alvo, portanto sem vazamento)
 # ---------------------------------------------------------------
-df = df.drop(columns=COLUNAS_VAZAMENTO)
+df["cresc_pop_2022_2024_pct"] = (df["pop_2024"] / df["pop_total_2022"] - 1) * 100
 
 # ---------------------------------------------------------------
-# 5) Transformação log10 em pop_total_2022 (distribuição muito assimétrica)
+# 5) Remove colunas que vazam o alvo ou são redundantes (drop)
+# ---------------------------------------------------------------
+df = df.drop(columns=COLUNAS_VAZAMENTO + COLUNAS_REDUNDANTES)
+
+# ---------------------------------------------------------------
+# 6) Transformação log10 em pop_total_2022 (distribuição muito assimétrica)
 # ---------------------------------------------------------------
 df.loc[df["pop_total_2022"] <= 0, "pop_total_2022"] = np.nan  # log10 só definido para > 0
 df["pop_total_2022_log10"] = np.log10(df["pop_total_2022"])
 df = df.drop(columns=["pop_total_2022"])
 
 # ---------------------------------------------------------------
-# 6) Tratamento de nulos
+# 7) Tratamento de nulos
 # ---------------------------------------------------------------
 df = df.replace([np.inf, -np.inf], np.nan)
 
@@ -145,27 +165,13 @@ for col in features_num:
         df[col] = df[col].fillna(mediana)
 
 # ---------------------------------------------------------------
-# 7) Isola a variável-alvo e padroniza as features numéricas
-# ---------------------------------------------------------------
-y = df[ALVO]
-X = df[features_num]
-
-scaler = StandardScaler()
-X_pad = pd.DataFrame(scaler.fit_transform(X), columns=features_num, index=df.index)
-
-# Obs.: o scaler é ajustado em toda a base. Ao treinar o modelo, ajuste-o
-# apenas no conjunto de treino para não vazar informação do teste.
-
-# ---------------------------------------------------------------
-# 8) Exporta df_pre_processado.csv (ids + features padronizadas + alvo)
+# 8) Exporta df_pre_processado.csv (ids + features SEM padronização + alvo)
 # ---------------------------------------------------------------
 ids = df[[c for c in COLUNAS_ID if c in df.columns]]
-df_final = pd.concat([ids, X_pad, y], axis=1).reset_index(drop=True)
+df_final = pd.concat([ids, df[features_num], df[ALVO]], axis=1).reset_index(drop=True)
 df_final.to_csv(ARQ_SAIDA, index=False)
 
 print(f"\nArquivo salvo: {ARQ_SAIDA.name} ({df_final.shape[0]} linhas x {df_final.shape[1]} colunas)")
-print(f"Features padronizadas ({len(features_num)}): {features_num}")
+print(f"Features numéricas ({len(features_num)}): {features_num}")
 print(f"Variável-alvo: {ALVO}")
-print("\nVerificação do scaler (média ~0, desvio ~1):")
-print(X_pad.agg(["mean", "std"]).round(4).T.to_string())
-print(f"\nResumo da variável-alvo (%):\n{y.describe().round(4).to_string()}")
+print(f"\nResumo da variável-alvo (%):\n{df[ALVO].describe().round(4).to_string()}")

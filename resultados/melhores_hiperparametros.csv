@@ -1,0 +1,8 @@
+algoritmo,melhores_hiperparametros
+Baseline (média),{}
+Regressão Linear,"{""pre__num"": ""RobustScaler""}"
+Ridge,"{""modelo__alpha"": 1, ""pre__num"": ""RobustScaler""}"
+KNN,"{""modelo__n_neighbors"": 5, ""modelo__p"": 2, ""modelo__weights"": ""distance"", ""pre__num"": ""StandardScaler""}"
+Árvore de Decisão,"{""modelo__max_depth"": null, ""modelo__min_samples_leaf"": 5}"
+SVR (RBF),"{""modelo__C"": 10, ""modelo__epsilon"": 0.05, ""modelo__gamma"": 0.1, ""pre__num"": ""RobustScaler""}"
+MLP,"{""modelo__activation"": ""relu"", ""modelo__alpha"": 0.0001, ""modelo__hidden_layer_sizes"": [64], ""pre__num"": ""RobustScaler""}"

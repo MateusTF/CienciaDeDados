@@ -1,0 +1,55 @@
+Treino: 1140 | Teste: 285
+Alvo treino: média=0.820 dp=1.626 | teste: média=0.904 dp=1.764
+
+>>> Baseline (média)
+   melhores: {} | RMSE CV=1.6248 | RMSE teste=1.7634 | R²=-0.0023
+
+>>> Regressão Linear
+   melhores: {'pre__num': 'RobustScaler'} | RMSE CV=0.7975 | RMSE teste=0.5028 | R²=0.9185
+
+>>> Ridge
+   melhores: {'modelo__alpha': 1, 'pre__num': 'RobustScaler'} | RMSE CV=0.7770 | RMSE teste=0.4878 | R²=0.9233
+
+>>> KNN
+   melhores: {'modelo__n_neighbors': 5, 'modelo__p': 2, 'modelo__weights': 'distance', 'pre__num': 'StandardScaler'} | RMSE CV=0.7797 | RMSE teste=0.5832 | R²=0.8904
+
+>>> Árvore de Decisão
+   melhores: {'modelo__max_depth': None, 'modelo__min_samples_leaf': 5} | RMSE CV=0.8199 | RMSE teste=0.7980 | R²=0.7947
+
+>>> SVR (RBF)
+   melhores: {'modelo__C': 10, 'modelo__epsilon': 0.05, 'modelo__gamma': 0.1, 'pre__num': 'RobustScaler'} | RMSE CV=0.6629 | RMSE teste=0.3785 | R²=0.9538
+
+>>> MLP
+   melhores: {'modelo__activation': 'relu', 'modelo__alpha': 0.0001, 'modelo__hidden_layer_sizes': (64,), 'pre__num': 'RobustScaler'} | RMSE CV=0.7227 | RMSE teste=0.4846 | R²=0.9243
+
+=== Resultados (teste) ===
+        algoritmo  rmse_validacao_cv  dp_rmse_validacao_cv  mae_teste  rmse_teste  r2_teste  medae_teste  tempo_treino_s  tempo_predicao_ms  tempo_busca_grade_s  n_configuracoes
+ Baseline (média)             1.6248                0.0469     1.2110      1.7634   -0.0023       0.8199          0.0051             2.6861               1.1254                1
+ Regressão Linear             0.7975                0.0744     0.3322      0.5028    0.9185       0.2400          0.0098             3.6181               0.1388                3
+            Ridge             0.7770                0.0694     0.3302      0.4878    0.9233       0.2514          0.0082             3.0616               0.5073               15
+              KNN             0.7797                0.1207     0.3517      0.5832    0.8904       0.2068          0.0067            11.1539               2.7862               84
+Árvore de Decisão             0.8199                0.1505     0.4454      0.7980    0.7947       0.2089          0.0079             2.6404               0.6606               20
+        SVR (RBF)             0.6629                0.1175     0.2139      0.3785    0.9538       0.1053          0.0757             7.7867              14.0785              108
+              MLP             0.7227                0.0933     0.2910      0.4846    0.9243       0.1644          0.1352             3.0954              37.8525               54
+
+=== RMSE de validação por scaler ===
+scaler            MinMaxScaler  RobustScaler  StandardScaler
+algoritmo                                                   
+KNN                     0.8258        0.7807          0.7797
+MLP                     0.7646        0.7227          0.7240
+Regressão Linear        0.7975        0.7975          0.7975
+Ridge                   0.7942        0.7770          0.7770
+SVR (RBF)               0.6651        0.6629          0.6723
+
+Melhor modelo (validação): SVR (RBF)
+            municipio uf                     regiao_metropolitana  cresc_pop_0a4_pct  pred_SVR (RBF)  erro_abs
+   Águas de São Pedro SP      Recorte Metropolitano de Piracicaba              3.676           0.232     3.444
+              Careiro AM          Recorte Metropolitano de Manaus             -0.472           1.328     1.800
+      Abadia de Goiás GO         Recorte Metropolitano de Goiânia              8.283           6.993     1.289
+             São Brás AL         Recorte Metropolitano do Agreste              0.000          -1.231     1.231
+                Belém PA           Recorte Metropolitano de Belém             -0.170           0.919     1.089
+       Lagoa do Piauí PI Recorte Metropolitano da Grande Teresina              1.038           2.033     0.995
+            Caririaçu CE          Recorte Metropolitano do Cariri              0.353           1.320     0.967
+Presidente Figueiredo AM          Recorte Metropolitano de Manaus              1.745           2.645     0.900
+           Maranguape CE       Recorte Metropolitano de Fortaleza             -0.564           0.230     0.794
+             Paulista PE          Recorte Metropolitano de Recife              1.156           0.372     0.784

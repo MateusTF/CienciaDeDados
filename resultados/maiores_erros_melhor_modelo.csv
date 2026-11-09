@@ -1,0 +1,11 @@
+municipio,uf,regiao_metropolitana,cresc_pop_0a4_pct,pred_SVR (RBF),erro_abs
+Águas de São Pedro,SP,Recorte Metropolitano de Piracicaba,3.6762106751502266,0.23173350245843904,3.4444771726917875
+Careiro,AM,Recorte Metropolitano de Manaus,-0.4716108747919389,1.3280997084404016,1.7997105832323406
+Abadia de Goiás,GO,Recorte Metropolitano de Goiânia,8.282541932435606,6.993448853047065,1.2890930793885413
+São Brás,AL,Recorte Metropolitano do Agreste,0.0,-1.2313172657384739,1.2313172657384739
+Belém,PA,Recorte Metropolitano de Belém,-0.1697495443433117,0.9189610138395365,1.0887105581828482
+Lagoa do Piauí,PI,Recorte Metropolitano da Grande Teresina,1.0381313635456246,2.0333659177909382,0.9952345542453136
+Caririaçu,CE,Recorte Metropolitano do Cariri,0.3529582999781677,1.320263861120372,0.9673055611422043
+Presidente Figueiredo,AM,Recorte Metropolitano de Manaus,1.7452430008483732,2.6452795412488523,0.9000365404004791
+Maranguape,CE,Recorte Metropolitano de Fortaleza,-0.5636285192358925,0.2300696039686252,0.7936981232045177
+Paulista,PE,Recorte Metropolitano de Recife,1.1557747410183117,0.37153415880588425,0.7842405822124274
